@@ -3,18 +3,19 @@ const http = require('http');
 const URL = require('url');
 const qs = require('querystring');
 const path = require('path');
+const {chapterList, userList} = require('./data');
 
 var nowChapter = {};
+var Id;
 http.createServer((req,res)=>{
     if(req.url === '/list'){
         res.writeHead(200,{'Content-Type':'text/html'});
         fs.readFile('./chapterList.html','utf-8',function(err,data){
             if(err){
-                throw err ;
+                console.error(err);
             }    
             else{
                 if(req.method === 'GET'){
-                    var j = JSON.stringify(chapterList);
                     res.write(data.toString());
                     res.end();
                 }
@@ -24,7 +25,7 @@ http.createServer((req,res)=>{
         res.writeHead(200,{'Content-Type':'text/html'});
         fs.readFile('./login.html','utf-8',function(err,data){
             if(err){
-                throw err;
+                console.error(err);
             }
             res.write(data.toString());
             res.end();
@@ -33,7 +34,7 @@ http.createServer((req,res)=>{
         res.writeHead(200,{'Content-Type':'image/jpeg'});
         fs.readFile('./login_bg.jpg','binary',function(err,data){
             if(err){
-                throw err ;
+                console.error(err);
             }else{
                 res.write(data,'binary');
                 res.end();
@@ -43,7 +44,7 @@ http.createServer((req,res)=>{
         res.writeHead(200,{'Content-Type':'text/html'});
         fs.readFile('./addChapter.html','utf-8',function(err,data){
             if(err){
-                throw err;
+                console.error(err);
             }
             res.write(data.toString());
             res.end();
@@ -52,7 +53,7 @@ http.createServer((req,res)=>{
         res.writeHead(200,{'Content-Type':'text/html'});
         fs.readFile('./chapter.html','utf-8',function(err,data){
             if(err){
-                throw err;
+                console.error(err);
             }else{
                 res.write(data.toString());
                 res.end(data);
@@ -64,7 +65,7 @@ http.createServer((req,res)=>{
             res.writeHead(200,{'Content-Type':'text/html'});
             fs.readFile('./list.html','utf-8',function(err,data){
                 if(err){
-                    throw err;
+                    console.error(err);
                 }else{
                     res.write(data.toString());
                     res.end(data);
@@ -73,29 +74,42 @@ http.createServer((req,res)=>{
         }else{
             res.end('404');
         }
-    }else if(req.url == '/art/'){
-        res.write(JSON.stringify(chapterList));
-        res.end();
     }else if(req.url == '/a/'){
         res.write(JSON.stringify(chapterList));
         res.end();
     }else if(req.url !=='/'){
-        var cpurl = '.'+req.url;
+        var newurl = '.'+req.url;
         res.writeHead(200,{'Content-type':"text/css"});
-        fs.readFile(cpurl, function(err, data) {
+        fs.readFile(newurl, (err, data)=> {
             if (err) {
-                throw err;
+                console.error(err);
             }else{
                 res.end(data);
             }
         });
-    }else if(req.url == '/nowChaper/'){
+    }else if(req.url == '/nowChapter/'){
         res.writeHead(200,{'Content-Type':'text/json'});
         nowChapter=chapterList[Id];
         res.end(JSON.stringify(nowChapter));
     }else if(req.url=='/add'){
-        var newChapter={};
-        var postData="";
-        console.log("OK");
+        var nd={};
+        req.on('data',function(data){
+            nd=data.toString('utf8');
+            var chap = qs.parse(nd);
+            var tit = chap.title;
+            var cont = chap.content;
+            var len = chapterList.length+1;
+            var date = new Date();
+            var newChapter = {
+                "chapterId":len,
+                "chapterName":tit,
+                "chapterDes":tit,
+                "chapterContent":cont,
+                "publishTimer":date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate(),
+                "author":"admin",
+                "views":1022
+            }
+            chapterList.push(newChapter);
+        })
     }
 }).listen(8083);

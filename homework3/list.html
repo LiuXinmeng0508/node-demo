@@ -212,28 +212,23 @@
 </body>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script>
-   $(document).ready(function() {
-        $.get("http://localhost:8083/ll", function(data) {
-            var str = JSON.parse(data);           
-            for(var i = 0;i<str.length;i++){
-                $("tr")[i+1].firstElementChild.innerText = str[i].chapterId;
-                $("tr")[i+1].children[1].innerText = str[i].chapterName;
-                $("tr")[i+1].children[2].innerText = str[i].views;
-            }
-            for(var i = str.length+1;i<=$("tr").length-1;i++){
-                $("tr")[i].style.display="none"
-            }  
-            $(".b").each(function(idx,val){
-                $(this).click(function(){
-                    console.log(idx);
-                    $.post("http://localhost:8083/del", {idx}, function(data) {
-                       window.location = ("http://localhost:8083/listmanager")
-                    })
-                })
-            })
-            console.log(str)
-            console.log($(".b"));
-        })
-    })
+   function addChapter() {
+        window.location = "http://localhost:8083/addChapter/"
+    }
+    $(document).ready(function() {
+$.get("http://localhost:8083/len", function(data) {
+    var str = JSON.parse(data);
+    console.log(str)
+    for(var i = 0;i<str.length;i++){
+        $("tr")[i+1].firstElementChild.innerText = str[i].chapterId;
+        $("tr")[i+1].children[1].innerText = str[i].chapterName;
+        $("tr")[i+1].children[2].innerText = str[i].views;
+    }
+    var tr_length = $("tr").length-1;
+    for(var i = str.length+1;i<=tr_length;i++){
+        $("tr")[i].style.display="none"
+    }
+})
+})
 </script>
 </html>
